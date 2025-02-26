@@ -14,6 +14,7 @@ import FavouriteArtistSection from "../components/FavouriteArtistSection";
 const UserPage = () => {
     const location = useLocation();
     const {username}=useParams();
+    const [currentUsername,setCurrentUsername]=useState(localStorage.getItem("username"));
     const [accessToken, setAccessToken] = useState("");
     const [userData, setUserData] = useState({});
     const [topArtists, setTopArtists] = useState([]);
@@ -30,6 +31,8 @@ const UserPage = () => {
             setAccessToken(token);
             localStorage.setItem("spotify_access_token", token);
             localStorage.setItem("jwt",jwt);
+            localStorage.setItem("username",username);
+            setCurrentUsername(username);
             window.history.replaceState(null, "", location.pathname);
 
         }else{
@@ -50,27 +53,54 @@ const UserPage = () => {
             })
             .catch(error => handleTokenError(error)
         )
+        const loginedUser=localStorage.getItem("username");
 
         // Fetch Top Artists
-        axios.get("https://api.spotify.com/v1/me/top/artists?limit=5", {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        })
-            .then(response => {
-                console.log(response.data.items);
-                setTopArtists(response.data.items)
+        axios.get(`${BACKEND_API}/me/top-items?user=${username}`, {
+                headers: { Authorization: `${localStorage.getItem("jwt")}` },
+        }).then(response => {
+                
+                const topArtists=response.data.userPreferences.top_artists?.["4_week"].slice(0,5);
+                const topSongs=response.data.userPreferences?.top_tracks?.["4_week"].slice(0,5);
+                setTopArtists(topArtists);
+                setTopTracks(topSongs);
+     }) .catch(error => handleTokenError(error)
+        )
+        if(loginedUser===username){
+            axios.get("https://api.spotify.com/v1/me/top/artists?limit=5", {
+                headers: { Authorization: `Bearer ${accessToken}` },
             })
-            .catch(error => handleTokenError(error));
-
-        // Fetch Top Songs
-        axios.get("https://api.spotify.com/v1/me/top/tracks?limit=5", {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        })
-            .then(response => {
-                console.log(response.data.items); setTopTracks(response.data.items)
+                .then(response => {
+                    
+                    const data=response.data.items.map(artist=>{
+                        return {
+                            name:artist.name,
+                            profile_image:artist.images[0].url
+                        }
+                    })
+                    setTopArtists(data)
+                })
+                .catch(error => handleTokenError(error));
+    
+            // Fetch Top Songs
+            axios.get("https://api.spotify.com/v1/me/top/tracks?limit=5", {
+                headers: { Authorization: `Bearer ${accessToken}` },
             })
-            .catch(error => handleTokenError(error));
+                .then(response => {
+                    const data=response.data.items.map(track=>{
+                        return {
+                            name:track.name,
+                            artists:track.artists,
+                            album:{
+                                cover_image:track.album.images[0].url}
+                        }
+                    })
+                    console.log(response.data)
+                    setTopTracks(data)
+                })
+                .catch(error => handleTokenError(error));
 
-        // Fetch Recent Listening History
+             // Fetch Recent Listening History
         axios.get("https://api.spotify.com/v1/me/player/recently-played?limit=5", {
             headers: { Authorization: `Bearer ${accessToken}` },
         })
@@ -88,6 +118,10 @@ const UserPage = () => {
                   }
                 })
                 .catch(error => console.error("Error fetching current song:", error));
+        }
+        
+    
+       
 
     }, [accessToken]);
 
@@ -122,17 +156,19 @@ const UserPage = () => {
 
                 <div className="flex flex-col w-[40%] items-center justify-center p-4 bg-gray-800 rounded-lg shadow-lg ml-4">
                     <CurrentlyPlaying currentTrack={currentTrack}/>
-                    <button className="mt-4 px-4 py-2 bg-[#1DB954] text-white rounded-lg hover:bg-[#1aa34a] transition duration-300">
-                        Send Friend Request
-                    </button>
+                    { currentUsername!==username &&
+                        <button className="mt-4 px-4 py-2 bg-[#1DB954] text-white rounded-lg hover:bg-[#1aa34a] transition duration-300">
+                            Send Friend Request
+                        </button>
+}
                 </div>
             </div>
 
 
-            <FavouriteArtistSection topArtists={topArtists} />
+           <FavouriteArtistSection topArtists={topArtists} />
             <TopArtistsSection topArtists={topArtists} />
             <TopSongsSection topTracks={topTracks} />
-            <RecentlyPlayedSection recentTracks={recentTracks} />
+           {username==currentUsername && <RecentlyPlayedSection recentTracks={recentTracks} />}
         </div>
     );
 };

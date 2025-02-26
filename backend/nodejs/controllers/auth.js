@@ -55,7 +55,7 @@ const Callback = async (req, res) => {
 
     const { access_token, refresh_token } = response.data;
     
-    await AddArtist(req,res,access_token)
+    await AddArtist(req,res,access_token,refresh_token)
     
     const jwtToken = jwt.sign({user_id:req.user._id,spotify_id:req.user.spotify_id}, "abhishek", { expiresIn: "1h" });
 

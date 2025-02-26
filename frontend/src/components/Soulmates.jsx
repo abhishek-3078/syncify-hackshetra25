@@ -5,8 +5,8 @@ const Soulmates = () => {
   const navigate = useNavigate();
 
   const matches = [
-    { name: "Archit", percentage: 80 },
-    { name: "Garvit", percentage: 65 },
+    { name: "Abhishek", percentage: 80 },
+    { name: "Raman", percentage: 65 },
     { name: "Sheetal", percentage: 45 },
   ];
 
@@ -28,7 +28,8 @@ const Soulmates = () => {
             </div>
             <button
               className="bg-blue-500 text-white px-3 py-1 ml-4 rounded-md hover:bg-blue-600 transition cursor-pointer duration-300"
-              onClick={() => navigate(`/user/31d5hbigmyqh3hmbxly672dqhe2m`)}
+              onClick={() => window.location.href="/user/31djwdauodv5vcng43fen52uuvye"
+              }
             >
               Connect
             </button>

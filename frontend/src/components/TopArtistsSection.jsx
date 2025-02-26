@@ -14,7 +14,7 @@ const TopArtistsSection = ({ topArtists }) => {
             onClick={()=>navigate(`/community`)}
              key={artist.id} className="flex flex-col items-center text-center bg-gray-800 p-4 rounded-lg shadow-lg cursor-pointer hover:bg-gray-900">
               <img
-                src={artist.images?.[0]?.url}
+                src={artist.profile_image}
                 alt={artist.name}
                 className="w-32 h-32 object-cover mb-2 rounded-full"
               />

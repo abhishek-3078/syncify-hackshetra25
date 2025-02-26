@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     type: { type: String },
     uri: { type: String },
     username:{type:String,unique:true},
+    refresh_token:{type:String},
     created_at: { type: Date, default: Date.now }
 });;
 

@@ -1,7 +1,7 @@
 const axios = require('axios');
 const User = require('../models/User');
 
-const AddArtist = async (req, res,access_token) => {
+const AddArtist = async (req, res,access_token,refresh_token) => {
     try {
         console.log(req.body);
         // const access_token = req.body.;
@@ -14,6 +14,7 @@ const AddArtist = async (req, res,access_token) => {
         const SpotifyUser = response.data;
         
         let user = await User.findOne({ spotify_id: SpotifyUser.id });
+        console.log(refresh_token)
         // Create a new user document
         if (!user) {
             // Create a new user document if not found
@@ -27,16 +28,16 @@ const AddArtist = async (req, res,access_token) => {
               external_urls: SpotifyUser.external_urls,
               followers: SpotifyUser.followers,
               href: SpotifyUser.href,
-              images: SpotifyUser.images.map((img) => img.url), // Extract image URLs if available
+              images: SpotifyUser.images.map((img) => img.url), // Extract  URLs if available
               product: SpotifyUser.product,
               type: SpotifyUser.type,
               uri: SpotifyUser.uri,
+              refresh_token:refresh_token
             });
             req.user=user;
       
             console.log("New User Created:", user);
           } else {
-            console.log("User already exists:", user);
             req.user=user;
           }
 
